@@ -1,0 +1,136 @@
+Configurations for docker-compose.yml (Reacytjs, Spring boot, MySQL)
+____________________________________________________________________________________________________________________________________________________________________
+
+* Use below configuration to build docker images and run the application containers
+
+01. Configuration (docker-compose.yml)
+
+---------------------------------------------------------------------------------------------------------------------------------------------------
+
+version: '3'
+services:
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: greencitydb
+      MYSQL_USER: dbadmin
+      MYSQL_PASSWORD: password
+    volumes:
+      - dbdata:/var/lib/mysql
+    ports:
+      - "3307:3306"
+
+  backend:
+    build:
+      context: ./GreenCity-App-Backend
+      dockerfile: Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/greencitydb?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: dbadmin
+      SPRING_DATASOURCE_PASSWORD: password
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./GreenCity-App-Frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+
+volumes:
+  dbdata:
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------
+
+02. Folder Structure
+----------------
+
+Root
+├── docker-compose.yml
+├── mysql
+│   ├── Dockerfile
+│   └── ...
+├── reactjs
+│   ├── Dockerfile
+│   ├── package.json
+│   └── ...
+└── springboot
+    ├── Dockerfile
+    ├── pom.xml
+    └── src
+        └── ...
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+03. Command to Run the application: "docker compose up"
+
+
+Note: Build .tar achives
+*************************************************************************
+
+01. Build docker images: docker-compose build
+02. List docker images: docker images
+03: save backend_image.tar : docker save -o backend_image.tar app_backend:latest
+04. save frontend_image.tar : docker save -o frontend_image.tar app_frontend:latest
+
+*************************************************************************
+
+Note: Build docker images using .tar achives
+*************************************************************************
+
+01. docker load -i backend_image.tar
+02. docker load -i frontend_image.tar
+
+*************************************************************************
+
+____________________________________________________________________________________________________________________________________________________________________
+
+
+
+* Use below configuration to run the application in containers using .tar archive images
+
+01. Configurations (There is no folder structure and it's using the images in your machine)
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+version: '3'
+services:
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: greencitydb
+      MYSQL_USER: dbadmin
+      MYSQL_PASSWORD: password
+    volumes:
+      - dbdata:/var/lib/mysql
+    ports:
+      - "3307:3306"
+
+  backend:
+    image: app_backend:latest
+    container_name: frontend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/greencitydb?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: dbadmin
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  frontend:
+    image: app_frontend:latest
+    ports:
+      - "3000:3000"
+
+volumes:
+  dbdata:
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------

@@ -1,0 +1,30 @@
+docker build --build-arg MYSQL_ROOT_PASSWORD=password -t green-city-app .
+
+
+docker run --build-arg MYSQL_ROOT_PASSWORD=password MYSQL_ROOT_PASSWORD=password MYSQL_USER=dbadmin-t MYSQL_PASSWORD=password mysql
+
+docker build --build-arg DB_HOST=localhost --build-arg DB_PORT=3306 --build-arg DB_NAME=greencitydb --build-arg DB_USER=dbadmin --build-arg DB_PASS=password -t green-city-app:latest .
+
+docker run -p 8080:8080 green-city-app
+docker run green-city-app
+
+
+ENV DB_HOST=mysql
+ENV DB_PORT=3307
+ENV MYSQL_DATABASE=greencitydb
+ENV MYSQL_USER=dbadmin
+ENV MYSQL_PASSWORD=password
+
+
+# Set environment variables
+ARG DB_HOST
+ARG DB_PORT
+ARG DB_NAME
+ARG DB_USER
+ARG DB_PASS
+
+ENV DB_HOST=$DB_HOST
+ENV DB_PORT=$DB_PORT
+ENV DB_NAME=$DB_NAME
+ENV DB_USER=$DB_USER
+ENV DB_PASS=$DB_PASS
